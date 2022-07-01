@@ -32,24 +32,22 @@ func TestBulderX(t *testing.T) {
 	cat := Cat{}
 	dog := Dog{}
 
-	//"COUNT(DISTINCT d.id) AS `d.id_count`"
 
 	builder := NewBuilderX(&cat,"c")
-	builder.ResultKeys( "distinct c.color","COUNT(DISTINCT d.id) AS `d.id_count`")//"COUNT(DISTINCT d.id) AS `d.id_count`"
+	builder.ResultKeys( "c.color"," d.id")
 	builder.Eq("p.id", 1)
 
 	subP := Sub()
 	subP.ResultKeys("id").Source(&pet)
 	builder.SourceBuilder().Sub(subP).Alia("p").JoinOn(LEFT_JOIN,ON("id","c","pet_id"))
 
-	arr := []interface{}{3000,4000,5000,6000}
+	arr := []interface{}{3000,4000,5000,6000,6666}
 	sub := Sub()
 	sub.ResultKeys("pet_id").Source(&dog).Eq("age",2).In("weight",arr...)
 	builder.SourceBuilder().Sub(sub).Alia("d").JoinOn(LEFT_JOIN,ON("id","c","pet_id"))
 
-	builder.SourceBuilder().Source(&cat).Alia("cat").JoinOn(INNER_JOIN,ON("pet_id","p","id"))
-	builder.
-		GroupBy("c.color").
+	builder.SourceBuilder().Source(&cat).Alia("cat").JoinOn(LEFT_JOIN,ON("pet_id","p","id"))
+	builder.GroupBy("c.color").
 		Having(Gt,"id",1000).
 		Sort("p.id",DESC).
 		Paged().Rows(10).Last(101)
